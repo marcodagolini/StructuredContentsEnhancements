@@ -1,0 +1,653 @@
+<html>
+   <head>
+     <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+     <meta charset="utf-8">
+     <title>Structured Contents</title>
+     
+
+	
+   
+	   
+   
+     <style>
+       /* Always set the map height explicitly to define the size of the div
+        * element that contains the map. */
+       body {
+           background-color:#f0f0f0;
+           margin:0px auto;
+           padding:0px;
+           font-family:helvetica;
+       }
+        
+       h1 {
+           text-align:relative;
+           font-weight: 200;
+           font-size:35px;
+           margin-top:20px;
+           margin-left:10px;
+           color:#1e90ff;
+       }
+        
+        
+       #map {
+          height: 280px;
+          width: 330px;
+          margin: 0px;
+          padding: 0px
+       }
+       #description {
+         font-family: Roboto;
+         font-size: 15px;
+         font-weight: 300;
+       }
+ 
+       #infowindow-content .title {
+         font-weight: bold;
+       }
+ 
+       #infowindow-content {
+         display: none;
+       }
+ 
+       #map #infowindow-content {
+         display: inline;
+       }
+ 
+       .pac-card {
+         margin: 10px 10px 0 0;
+         border-radius: 2px 0 0 2px;
+         box-sizing: border-box;
+         -moz-box-sizing: border-box;
+         outline: none;
+         box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+         background-color: #fff;
+         font-family: Roboto;
+       }
+ 
+       #pac-container {
+         padding-bottom: 12px;
+         margin-right: 12px;
+       }
+ 
+       .pac-controls {
+         display: inline-block;
+         padding: 5px 11px;
+       }
+ 
+       .pac-controls label {
+         font-family: Roboto;
+         font-size: 13px;
+         font-weight: 300;
+       }
+ 
+       #pac-input {
+         background-color: #fff;
+         font-family: Roboto;
+         font-size: 22px;
+         font-weight: 300;
+         margin-left: 5px;
+         margin-top: 10px;
+         padding: 0 11px 0 13px;
+         text-overflow: ellipsis;
+         width: 210px;
+       }
+ 
+       #pac-input:focus {
+         border-color: #4d90fe;
+       }
+ 
+       #title {
+         color: #fff;
+         background-color: #4d90fe;
+         font-size: 25px;
+         font-weight: 500;
+         padding: 6px 12px;
+       }
+        
+       #target {
+         width: 345px;
+       }
+        
+       div.tab {
+         overflow: hidden;
+         border: 1px solid #ccc;
+         background-color: #f1f1f1;
+       }
+ 
+ /* Style the buttons inside the tab */
+       div.tab button {
+           background-color: inherit;
+           float: left;
+           border: none;
+           outline: none;
+           cursor: pointer;
+           padding: 10px 10px;
+           transition: 0.3s;
+           font-size: 17px;
+       }
+ 
+ /* Change background color of buttons on hover */
+       div.tab button:hover {
+           background-color: #ddd;
+       }
+ 
+ /* Create an active/current tablink class */
+       div.tab button.active {
+          background-color: #0086ff;
+       }
+ 
+ /* Style the tab content */
+       .tabcontent {
+          display: none;
+          padding: 0px;
+          height: 500px;
+          width: 320px;
+          border-top: none;
+       }
+        
+        .generate {
+           padding: 10px;
+           border-radius: 0px 0px 5px 5px;
+           font-weight: 200;
+           position: relative;
+           background-color:#ccc;
+           cursor: pointer;
+         }
+     </style>
+     
+     
+     
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.js"></script>
+     <script src="https://lpcdn.lpsnmedia.net/webagent/client-SDK.min.js"></script>
+ 	  
+     
+ 	  
+     <script>
+ 	   
+ 
+       	$("document").ready(function() {
+           setTimeout(function() {
+              var mybutton = document.getElementById("buttonMap");
+              mybutton.className += " active";
+              $(".tabMap").trigger('click');
+           },10);
+         });
+         function openContent(evt, contentType) {
+              var i, tabcontent, tablinks;
+              tabcontent = document.getElementsByClassName("tabcontent");
+              for (i = 0; i < tabcontent.length; i++) {
+                  tabcontent[i].style.display = "none";
+              }
+              tablinks = document.getElementsByClassName("tablinks");
+              for (i = 0; i < tablinks.length; i++) {
+                   tablinks[i].className = tablinks[i].className.replace(" active", "");
+              }
+              document.getElementById(contentType).style.display = "block";
+              evt.target.className += " active";
+          }
+    </script>
+     
+     <script>
+       // This example adds a search box to a map, using the Google Place Autocomplete
+       // feature. People can enter geographical searches. The search box will return a
+       // pick list containing a mix of places and predicted search terms.
+ 
+       // This example requires the Places library. Include the libraries=places
+       // parameter when you first load the API. For example:
+       // <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places">
+ 
+         var InterceptedLat = "";
+         var InterceptedLong = "";
+ 
+         lpTag.agentSDK.init({});
+       
+         function sendSC(json) {
+            var cmdName = lpTag.agentSDK.cmdNames.writeSC;
+            var data = {json:json};
+            lpTag.agentSDK.command(cmdName, data, function (err) {
+               outputLog.value = err ? err : 'done';
+            });
+         }
+       
+       
+ 	    
+ 
+         $(document).on('click', function(evt) {
+           if($(evt.target).is('#sendMap')) {
+ 		         var FreeTextMap = $( "#FreeTextMap" ).val();
+ 		         InterceptedLat = Number($( "#Latitude" ).val());
+ 		         InterceptedLong = Number($( "#Longitude" ).val());
+ 		         var DataMap = {
+ 			         "type": "vertical",
+ 			         "elements": [{
+ 				         "type": "map",
+ 				         "lo": InterceptedLong,
+ 				         "la": InterceptedLat,
+ 				         "click": {
+ 					         "actions": [{
+ 						         "type": "navigate",
+ 						         "lo": InterceptedLong,
+ 						         "la": InterceptedLat
+ 					         }]
+ 				         },
+ 				         "tooltip": "map tooltip"
+					 
+ 			         },
+ 			         {
+ 				         "type": "text",
+ 				         "text": FreeTextMap,
+ 				         "tooltip": "text tooltip",
+ 				         "rtl": true,
+                     			 "style": {
+	                     			"bold": true,
+	                     			"italic": true,
+	                     			"color": "#ffffff",
+	                     			"size": "large"
+                     			}
+ 			         }
+ 		         ]};
+             sendSC(DataMap);
+             }       
+          });
+ 	    
+ 	    
+ 	  $(document).on('click', function(evt) {
+               if($(evt.target).is('#sendCard')) {
+ 		               var ImageCard = $( "#ImageCard" ).val();
+ 		               var URLCard = $( "#URLCard" ).val();
+ 		               var FreeTextCard = $( "#FreeTextCard" ).val();
+ 		               var FreeTextToURL = $( "#FreeTextToURL" ).val();
+ 		               var DataCard = {
+ 			               "type": "vertical",
+ 			               "elements": [{
+ 				               "type": "image",
+ 				               "url": ImageCard,
+ 				               "tooltip": "image tooltip"
+ 			               },
+ 			               {
+ 				               "type": "text",
+ 				               "text": FreeTextCard,
+ 				               "tooltip": "brand new iphone 8",
+ 				               "style": {
+ 					               "bold": true,
+ 					               "size": "large",
+						       "color": "#ffffff"
+ 				               }
+ 			               },
+ 			               {
+ 				               "type": "button",
+					       "style": {
+ 					               	"bold": true,
+ 					               	"size": "large",
+						       	"color": "#ffffff"
+ 				               	},
+ 				               "title": FreeTextToURL,
+ 				               "click": {
+ 					               "actions": [{
+ 						               "type": "link",
+ 						               "uri": URLCard							       
+ 					               }]
+ 				               }
+ 			               }
+ 		               ]};
+                 sendSC(DataCard);
+                 }   
+           });
+	     
+	     
+	     
+	   $(document).on('click', function(evt) {
+               if($(evt.target).is('#sendCard2')) {
+ 		               var ImageCard2 = $( "#ImageCard2" ).val();
+ 		               var URLCard2 = $( "#URLCard2" ).val();
+ 		               var DataCard2 = {
+ 			               "type": "vertical",
+ 			               "elements": [{
+ 				               "type": "image",
+ 				               "url": "https://i.imgur.com/AVklBeO.png",
+ 				               "tooltip": "image tooltip"
+ 			               },
+					       {
+ 				               "type": "image",
+ 				               "url": ImageCard2,
+ 				               "tooltip": "image tooltip"
+ 			               },
+ 			               {
+ 				               "type": "image",
+ 				               "url": "https://i.imgur.com/FUxJMes.png",
+ 				               "tooltip": "image tooltip",
+ 				               "click": {
+ 					               "actions": [{
+ 						               "type": "link",
+ 						               "uri": URLCard2							       
+ 					               }]
+ 				               }
+ 			               }
+ 		               ]};
+                 sendSC(DataCard2);
+                 }   
+           });
+       
+ 	    
+ 	    
+ 	   $(document).on('click', function(evt) {
+               if($(evt.target).is('#sendVideo')) {
+ 		               var URLImage = $( "#URLImage" ).val();
+ 		               var URLVideo = $( "#URLVideo" ).val();
+ 		               var FreeTextVideo = $( "#FreeTextVideo" ).val();
+ 		               var DataVideo = {
+ 			               "type": "vertical",
+ 			               "elements": [{
+ 				               "type": "image",
+ 				               "url": URLImage,
+ 				               "tooltip": "image tooltip",
+ 				               "click": {
+ 					               "actions": [{
+ 						               "type": "link",
+ 						               "uri": URLVideo
+ 					               }]
+ 				               }
+ 			               },
+ 			               {
+ 				               "type": "text",
+ 				               "text": FreeTextVideo,
+					       "tooltip": "video",
+ 				               "style": {
+ 					               "bold": true,
+ 					               "size": "large",
+						       "color": "#000000"
+ 				               }
+ 			               }
+ 		               ]};
+                 sendSC(DataVideo);
+                 }
+            });
+       	    
+ 	    
+ 	    $(document).on('click', function(evt) {
+               if($(evt.target).is('#CSAT')) {
+ 		               var CSAT = {
+ 			               "type": "horizontal",
+ 			               "elements": [{
+ 				               "type": "image",
+ 				               "url": "https://i.imgur.com/LpNAMbk.png",
+ 				               "tooltip": "image tooltip",
+ 				               "click": {
+ 					               "actions": [{
+ 						               "type": "publishText",
+ 						               "text": "1"
+ 					               }]
+ 				               }
+ 			               },
+ 			               {
+ 				               "type": "image",
+ 				               "url": "https://i.imgur.com/2cvfcbc.png",
+ 				               "tooltip": "image tooltip",
+ 				               "click": {
+ 					               "actions": [{
+ 						               "type": "publishText",
+ 						               "text": "2"
+ 					               }]
+ 				               }
+ 			               },
+ 			               {
+ 				               "type": "image",
+ 				               "url": "https://i.imgur.com/L1ZVRGm.png",
+ 				               "tooltip": "image tooltip",
+ 				               "click": {
+ 					               "actions": [{
+ 						               "type": "publishText",
+ 						               "text": "3"
+ 					               }]
+ 				               }
+ 			               },
+ 			               {
+ 				               "type": "image",
+ 				               "url": "https://i.imgur.com/8ca4CM2.png",
+ 				               "tooltip": "image tooltip",
+ 				               "click": {
+ 					               "actions": [{
+ 						               "type": "publishText",
+ 						               "text": "4"
+ 					               }]
+ 				               }
+ 			               },
+ 			               {
+ 				               "type": "image",
+ 				               "url": "https://i.imgur.com/LR78O5P.png",
+ 				               "tooltip": "image tooltip",
+ 				               "click": {
+ 					               "actions": [{
+ 						               "type": "publishText",
+ 						               "text": "5"
+ 					               }]
+ 				               }
+ 			               },
+ 			               {
+ 				               "type": "image",
+ 				               "url": "https://i.imgur.com/xsWzCZb.png",
+ 				               "tooltip": "image tooltip",
+ 				               "click": {
+ 					               "actions": [{
+ 						               "type": "publishText",
+ 						               "text": "6"
+ 					               }]
+ 				               }
+ 			               },
+ 			               {
+ 				               "type": "image",
+ 				               "url": "https://i.imgur.com/MPaXYsR.png",
+ 				               "tooltip": "image tooltip",
+ 				               "click": {
+ 					               "actions": [{
+ 						               "type": "publishText",
+ 						               "text": "7"
+ 					               }]
+ 				               }
+ 			               },
+ 			               {
+ 				               "type": "image",
+ 				               "url": "https://i.imgur.com/5GH68c4.png",
+ 				               "tooltip": "image tooltip",
+ 				               "click": {
+ 					               "actions": [{
+ 						               "type": "publishText",
+ 						               "text": "8"
+ 					               }]
+ 				               }
+ 			               },
+ 			               {
+ 				               "type": "image",
+ 				               "url": "https://i.imgur.com/z81jtR3.png",
+ 				               "tooltip": "image tooltip",
+ 				               "click": {
+ 					               "actions": [{
+ 						               "type": "publishText",
+ 						               "text": "9"
+ 					               }]
+ 				               }
+ 			               },
+ 			               {
+ 				               "type": "image",
+ 				               "url": "https://i.imgur.com/hMFDcIn.png",
+ 				               "tooltip": "image tooltip",
+ 				               "click": {
+ 					               "actions": [{
+ 						               "type": "publishText",
+ 						               "text": "10"
+ 					               }]
+ 				               }
+ 			               }
+ 		               ]};
+                 sendSC(CSAT);
+                 }
+            });
+ 	    
+ 	    
+ 	    
+ 	    
+ 	    
+ 	    
+       
+       
+      
+       
+            function initAutocomplete() {
+                  var map = new google.maps.Map(document.getElementById('map'), {
+                        center: {lat: 51.5, lng: -0.12},
+                        zoom: 7,
+                        mapTypeId: 'roadmap'
+                  });
+                  google.maps.event.addListener(map, 'click', function(event) {
+                        InterceptedLat = event.latLng.lat;	
+                        InterceptedLong = event.latLng.lng
+                        $('#Latitude').val(InterceptedLat);
+                        $('#Longitude').val(InterceptedLong);
+                  });
+         
+                  // Create the search box and link it to the UI element.
+                  var input = document.getElementById('pac-input');
+                  var searchBox = new google.maps.places.SearchBox(input);
+                  map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
+ 
+                  // Bias the SearchBox results towards current map's viewport.
+                  map.addListener('bounds_changed', function() {
+                        searchBox.setBounds(map.getBounds());
+                  });
+ 
+                  var markers = [];
+                  // Listen for the event fired when the user selects a prediction and retrieve
+                  // more details for that place.
+                  searchBox.addListener('places_changed', function() {
+                        var places = searchBox.getPlaces();
+                        if (places.length == 0) {
+                              return;
+                        }
+                        // Clear out the old markers.
+                        markers.forEach(function(marker) {
+                              marker.setMap(null);
+                        });
+                        markers = [];
+ 
+                        // For each place, get the icon, name and location.
+                        var bounds = new google.maps.LatLngBounds();
+                        places.forEach(function(place) {
+                              if (!place.geometry) {
+                                    console.log("Returned place contains no geometry");
+                                    return;
+                              }
+                              var icon = {
+                                    url: place.icon,
+                                    size: new google.maps.Size(71, 71),
+                                    origin: new google.maps.Point(0, 0),
+                                    anchor: new google.maps.Point(17, 34),
+                                    scaledSize: new google.maps.Size(25, 25)
+                              };
+ 
+                              // Create a marker for each place.
+                              markers.push(new google.maps.Marker({
+                                    map: map,
+                                    icon: icon,
+                                    title: place.name,
+                                    position: place.geometry.location
+                              }));
+ 
+                              if (place.geometry.viewport) {
+                              // Only geocodes have viewport.
+                                    bounds.union(place.geometry.viewport);
+                              } else {
+                                    bounds.extend(place.geometry.location);
+                              }
+                        });
+                        map.fitBounds(bounds);
+                  });
+            }
+       
+     </script>
+     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyClk9cYf1HsmnrBwzxrfYtJErFlOcvI7V4&libraries=places&callback=initAutocomplete"
+          async defer></script>
+     
+     </head>
+   
+     <body>
+         <div class="tab">
+               <button id="buttonMap" class="tablinks tabMap" onclick="openContent(event, 'Map')">Map</button>
+               <button id="buttonCard" class="tablinks tabCard" onclick="openContent(event, 'Card')">Card</button>
+	       <button id="buttonCard2" class="tablinks tabCard2" onclick="openContent(event, 'Card2')">Card2</button>
+               <button id="buttonVideo" class="tablinks tabVideo" onclick="openContent(event, 'Video')">Video</button>
+	       <button id="CSAT" class="tablinks CSAT" onclick="openContent(event, 'CSAT')">CSAT</button>
+         </div>
+ 
+         <div id="Map" class="tabcontent">
+               <input id="pac-input" class="controls" type="text" placeholder="Search Box">
+               <div id="map"></div>
+               <form>
+                     Latitude:<br>
+                     <input id="Latitude" type="text" name="Latitude">
+                     <br>
+                     Longitude:<br>
+                     <input id="Longitude" type="text" name="Longitude">
+                     <br>
+                     FreeText:<br>
+                     <input id="FreeTextMap" type="text" name="FreeTextMap">
+               </form>
+ 	            <div id="sendMap" class="generate">Generate Code</div>
+         </div>
+      
+         <div id="Card" class="tabcontent">
+               <form>
+                     <br>
+                     Image:<br>
+                     <input id="ImageCard" type="text" name="ImageCard" value="https://i.imgur.com/hGfZGPq.png">
+                     <br>
+                     FreeText:<br>
+                     <input id="FreeTextCard" type="text" name="FreeTextCard">
+                     <br>
+                     RedirectToURL:<br>
+                     <input id="URLCard" type="text" name="URLCard" value="https://www.apple.com/">
+                     <br>
+                     FreeTextURL:<br>
+                     <input id="FreeTextToURL" type="text" name="FreeTextToURL">
+                     <br>
+               </form>
+ 	            <div id="sendCard" class="generate">Generate Code</div>
+         </div>
+	     
+	 <div id="Card2" class="tabcontent">
+               <form>
+                     <br>
+                     Image:<br>
+                     <input id="ImageCard2" type="text" name="ImageCard2" value="https://i.imgur.com/hGfZGPq.png">
+                     <br>
+                     RedirectToURL:<br>
+                     <input id="URLCard2" type="text" name="URLCard2" value="https://www.apple.com/">
+                     <br>
+               </form>
+ 	            <div id="sendCard2" class="generate">Generate Code</div>
+         </div>
+ 
+         <div id="Video" class="tabcontent">
+               <form>
+                     <br>
+                     URLImage:<br>
+                     <input id="URLImage" type="text" name="URLImage" value="https://i.imgur.com/EpHLv0Y.png">
+                     <br>
+                     URLVideo:<br>
+                     <input id="URLVideo" type="text" name="URLVideo" value="https://www.youtube.com/watch?v=L-AvNqS4MGA">
+                     <br>
+                     FreeText:<br>
+                     <input id="FreeTextVideo" type="text" name="FreeTextVideo">
+                     <br>
+               </form>
+ 	            <div id="sendVideo" class="generate">Generate Code</div>
+         </div>
+	     
+	 <div id="CSAT" class="tabcontent">
+              
+                    <br><br><br><br><br><br>
+                     
+ 	            <div id="CSAT" class="generate">Generate Code</div>
+         </div>
+        
+    </body>
+</html> 
