@@ -327,6 +327,35 @@
                  sendSC(DataCard2);
                  }   
            });
+	     
+	     
+	   $(document).on('click', function(evt) {
+               if($(evt.target).is('#sendCard3')) {
+ 		               var TopImageCard3 = $( "#TopImageCard3" ).val();
+		       	       var BottomImageCard3 = $( "#BottomImageCard3" ).val();
+ 		               var URLCard3 = $( "#URLCard3" ).val();
+ 		               var DataCard3 = {
+ 			               "type": "vertical",
+ 			               "elements": [{
+ 				               "type": "image",
+ 				               "url": TopImageCard3",
+ 				               "tooltip": "image tooltip"
+ 			               },
+ 			               {
+ 				               "type": "image",
+ 				               "url": BottomImageCard3,
+ 				               "tooltip": "image tooltip",
+ 				               "click": {
+ 					               "actions": [{
+ 						               "type": "link",
+ 						               "uri": URLCard3							       
+ 					               }]
+ 				               }
+ 			               }
+ 		               ]};
+                 sendSC(DataCard3);
+                 }   
+           });
        
  	    
  	    
@@ -614,6 +643,7 @@
                <button id="buttonMap" class="tablinks tabMap" onclick="openContent(event, 'Map')">Map</button>
                <button id="buttonCard" class="tablinks tabCard" onclick="openContent(event, 'Card')">Card</button>
 	       <button id="buttonCard2" class="tablinks tabCard2" onclick="openContent(event, 'Card2')">Card2</button>
+	       <button id="buttonCard3" class="tablinks tabCard3" onclick="openContent(event, 'Card3')">Card3</button>
                <button id="buttonVideo" class="tablinks tabVideo" onclick="openContent(event, 'Video')">Video</button>
 	       <button id="CSAT" class="tablinks CSAT" onclick="openContent(event, 'CSAT')">CSAT</button>
          </div>
@@ -664,6 +694,22 @@
                      <br>
                </form>
  	            <div id="sendCard2" class="generate">Generate Code</div>
+         </div>
+	     
+	 <div id="Card3" class="tabcontent">
+               <form>
+                     <br>
+                     TopImage:<br>
+                     <input id="TopImageCard3" type="text" name="TopImageCard3" value="https://i.imgur.com/yvS5ogo.png">
+                     <br>
+		     BottomImage:<br>
+                     <input id="BottomImageCard3" type="text" name="BottomImageCard3" value="https://i.imgur.com/H8SzCZr.png">
+                     <br>
+                     RedirectToURL:<br>
+                     <input id="URLCard3" type="text" name="URLCard3" value="https://www.apple.com/">
+                     <br>
+               </form>
+ 	            <div id="sendCard3" class="generate">Generate Code</div>
          </div>
  
          <div id="Video" class="tabcontent">
