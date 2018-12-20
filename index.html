@@ -556,7 +556,12 @@
             });
  	    
  	    
- 	    
+ 	   $(document).on('click', function(evt) {
+               if($(evt.target).is('#sendTags')) {
+		       console.log("clicccckkkk");      
+                 }   
+           });
+	     
  	    
  	    
  	    
@@ -649,6 +654,7 @@
 	       <button id="buttonCard3" class="tablinks tabCard3" onclick="openContent(event, 'Card3')">Card3</button>
                <button id="buttonVideo" class="tablinks tabVideo" onclick="openContent(event, 'Video')">Video</button>
 	       <button id="buttonCSAT" class="tablinks CSAT" onclick="openContent(event, 'CSAT')">CSAT</button>
+	       <button id="buttonTags" class="tablinks CSAT" onclick="openContent(event, 'Tags')">Tags</button>
          </div>
  
          <div id="Map" class="tabcontent">
@@ -736,6 +742,13 @@
                     <br><br><br><br><br><br>
                      
  	            <div id="sendCSAT" class="generate">Generate Code</div>
+         </div>
+	     
+	 <div id="Tags" class="tabcontent">
+              
+                    <br><br><br><br><br><br>
+                     
+ 	            <div id="sendTags" class="generate">Generate Code</div>
          </div>
         
     </body>
