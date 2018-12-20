@@ -558,6 +558,27 @@
  	    
  	   $(document).on('click', function(evt) {
                if($(evt.target).is('#sendTags')) {
+		       var FirstNameTags = $( "#FirstNameTags" ).val();
+		       var LastNameTags = $( "#LastNameTags" ).val();
+		       var AvatarTags = $( "#AvatarTags" ).val();
+		       var EmailTags = $( "#EmailTags" ).val();
+		       var PhoneTags = $( "#PhoneTags" ).val();
+		       var myObject = {
+			       firstName: FirstNameTags,
+			       lastName: LastNameTags,
+			       avatarUrl: AvatarTags,
+			       email: EmailTags,
+			       phone: PhoneTags   
+		       };
+		       
+		       lpTag.agentSDK.setConsumerProfile(myObject, function(res){
+			       console.log('set consumer profile success ', res);
+			       $('#responseTags').html('set consumer profile success');
+		       }, function(err){
+			       console.log('set consumer profile error ', err);
+			       $('#responseTags').html('set consumer profile error');
+		       });
+
 		       console.log("clicccckkkk");      
                  }   
            });
@@ -746,9 +767,28 @@
 	     
 	 <div id="Tags" class="tabcontent">
               
-                    <br><br><br><br><br><br>
+               <form>
+                     <br>
+                     First Name:<br>
+                     <input id="FirstNameTags" type="text" name="FirstNameTags">
+                     <br>
+                     Last Name:<br>
+                     <input id="LastNameTags" type="text" name="LastNameTags">
+                     <br>
+                     Avatar URL:<br>
+                     <input id="AvatarTags" type="text" name="AvatarTags">
+                     <br>
+                     Email Address:<br>
+                     <input id="EmailTags" type="text" name="EmailTags">
+                     <br>
+                     Phone Number:<br>
+                     <input id="PhoneTags" type="text" name="PhoneTags">
+                     <br>
+               </form>
                      
  	            <div id="sendTags" class="generate">Generate Code</div>
+		 <br>
+		    <div id="responseTags"></div>
          </div>
         
     </body>
